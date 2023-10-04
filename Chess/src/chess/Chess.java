@@ -1,10 +1,12 @@
+// Eleeza Safarian
+// Alyssa Fermin
+
 package chess;
 
 import java.util.ArrayList;
 
 class ReturnPiece {
-	static enum PieceType {WP, WR, WN, WB, WQ, WK, 
-		            BP, BR, BN, BB, BK, BQ};
+	static enum PieceType {WP, WR, WN, WB, WQ, WK, BP, BR, BN, BB, BK, BQ};
 	static enum PieceFile {a, b, c, d, e, f, g, h};
 	
 	PieceType pieceType;
