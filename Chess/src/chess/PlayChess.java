@@ -7,7 +7,7 @@ public class PlayChess {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		Scanner sc = new Scanner(System.in);
+		/*Scanner sc = new Scanner(System.in);
 		Chess.start();
 		
 		String line = sc.nextLine();
@@ -35,7 +35,11 @@ public class PlayChess {
 			line = sc.nextLine();
 		}
 		
-		sc.close();
+		sc.close();*/
+		
+		Chess.start();
+		makeBlankBoard();
+		printBoard(Chess.play("lol").piecesOnBoard);
 	}
 	
 	static void printBoard(ArrayList<ReturnPiece> pieces) {
@@ -68,12 +72,17 @@ public class PlayChess {
 	
 	static void printPiecesOnBoard(
 			ArrayList<ReturnPiece> pieces, String[][] board) {
+		
 		for (ReturnPiece rp: pieces) {
+			
 			int file = (""+rp.pieceFile).charAt(0) - 'a';
+			
 			String pieceStr = "" + rp.pieceType;
 			String ppstr = "";
+			
 			ppstr += Character.toLowerCase(pieceStr.charAt(0));
 			ppstr += pieceStr.charAt(1) == 'P' ? 'p' : pieceStr.charAt(1);
+			
 			board[8-rp.pieceRank][file] = ppstr;
 		}	
 	}
