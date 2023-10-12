@@ -74,15 +74,21 @@ public class Chess {
 
 		// is the move in correct FileRank A, FileRank B notation?
 		// not case-sensitive. also ensures that the move is on the board
+		move = move.toLowerCase(Locale.ROOT);
 		if ( isBadNotation(move) ){
 			currentGame.message = ReturnPlay.Message.ILLEGAL_MOVE;
 			return currentGame;
 		}
 
 		// is it a valid move?
-		if ( isValidMove(move) ){
-
+		// first: does the piece the player wants to move belong to them?
+		if ( !hasValidPiece(move) ){
+			currentGame.message = ReturnPlay.Message.ILLEGAL_MOVE;
+			return currentGame;
 		}
+
+		// second: can the piece they want to move move like that? / is there a piece in the way?
+		// third: will the move put its own king in check?
 
 		// try to carry out move, including special moves
 
@@ -180,7 +186,6 @@ public class Chess {
 			return true;
 		}
 
-		move = move.toLowerCase(Locale.ROOT);
 		char file1 = move.charAt(0);
 		char rank1 = move.charAt(1);
 		char file2 = move.charAt(3);
@@ -200,13 +205,32 @@ public class Chess {
 	}
 
 	/*
-	 * USED IN:
-	 * FUNCTION:
-	 * ex: correct:
+	 * USED IN: play()
+	 * FUNCTION: checks does the piece the player wants to move belong to them?
+	 * RETURNS: TRUE if the piece is found and belongs to player, FALSE if piece not found or doesn't belong to player
 	 */
-	public static boolean isValidMove(String move){
+	public static boolean hasValidPiece(String move){
+		char file1 = move.charAt(0);
+		char rank1 = move.charAt(1);
 
-		return true;
+		// does the piece on FileRankA belong to the current player?
+		for (int i = 0; i<currentGame.piecesOnBoard.size(); i++){
+			ReturnPiece piece = currentGame.piecesOnBoard.get(i);
+
+			// if piece is found check if it belongs to the player
+			if ( piece.pieceFile.name().charAt(0) == file1
+					&& piece.pieceRank == rank1-'0' ){
+
+				// belongs to the player
+				if (piece.pieceType.name().toLowerCase().charAt(0) == currPlayer.name().charAt(0)){
+					return true;
+				}
+
+				// does not belong to the player
+				return false;
+			}
+		}
+		return false;
 	}
 
 
