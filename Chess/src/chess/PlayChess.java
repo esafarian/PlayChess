@@ -7,9 +7,9 @@ public class PlayChess {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		/*Scanner sc = new Scanner(System.in);
+		Scanner sc = new Scanner(System.in);
 		Chess.start();
-		
+
 		String line = sc.nextLine();
 		while (!line.equals("quit")) {
 			if (line.equals("reset")) {
@@ -18,28 +18,28 @@ public class PlayChess {
 				line = sc.nextLine();
 				continue;
 			}
-			// move 
+			// move
 			ReturnPlay res = Chess.play(line);
-			
+
 			// print result message
 			if (res.message != null) {
 				System.out.println("\n"+res.message);
 			}
 			System.out.println();
-			
+
 			// print result board
 			printBoard(res.piecesOnBoard);
 			System.out.println();
-			
+
 			// next line
 			line = sc.nextLine();
 		}
-		
-		sc.close();*/
-		
-		Chess.start();
+
+		sc.close();
+
+		/*Chess.start();
 		makeBlankBoard();
-		printBoard(Chess.play("lol").piecesOnBoard);
+		printBoard(Chess.play("lol").piecesOnBoard);*/
 	}
 	
 	static void printBoard(ArrayList<ReturnPiece> pieces) {
