@@ -2,8 +2,14 @@ package chess;
 
 public class King extends Piece {
 
-	public King() {
-		// TODO Auto-generated constructor stub
+	public King(ReturnPiece.PieceType pieceType, Position position) {
+        super(pieceType, position);
+    }
+
+	@Override
+	public boolean isValidMove(Position destination) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }
