@@ -1,8 +1,8 @@
 package chess;
 
-public class Knight extends Piece {
+public class Rook extends Piece{
 
-	public Knight(ReturnPiece.PieceType pieceType, Position position) {
+	public Rook(ReturnPiece.PieceType pieceType, Position position) {
         super(pieceType, position);
     }
 
@@ -11,5 +11,4 @@ public class Knight extends Piece {
 		// TODO Auto-generated method stub
 		return false;
 	}
-
 }
