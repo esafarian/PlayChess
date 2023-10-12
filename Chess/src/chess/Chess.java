@@ -256,17 +256,6 @@ public class Chess {
 		return false;
 	}
 
-	/*
-	 * USED IN:
-	 * FUNCTION:
-	 * ex: correct:
-	 */
-	public static boolean isValidMove(String move){
-
-		return true;
-	}
-
-
 	/* USED IN: play()
 	 * FUNCTION: parses String input and returns
 	 *
@@ -287,7 +276,7 @@ public class Chess {
 		}
 
 
-
+		return null;
 
 	}
 
