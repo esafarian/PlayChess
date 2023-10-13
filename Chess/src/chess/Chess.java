@@ -91,8 +91,22 @@ public class Chess {
 			return currentGame;
 		}
 
-		parseMove(move);
+		// store the piece the player wants to move
+		Position start = new Position(null, 1);
+		Position end = new Position(null, 1);
+		Position[] startAndEnd = parseMove(start, end, move);
+		start = startAndEnd[0];
+		end = startAndEnd[1];
+
+		ReturnPiece.PieceType currPieceType = getPieceAt(start);
+		Piece currPiece = returnPiece(currPieceType, start.getFile(), start.getRank());
+
 		// second: can the piece they want to move move like that? / is there a piece in the way?
+		if ( !currPiece.isValidMove(currentGame, end) ){
+			currentGame.message = ReturnPlay.Message.ILLEGAL_MOVE;
+			return currentGame;
+		}
+
 		// third: will the move put its own king in check?
 
 		// try to carry out move, including special moves
@@ -207,13 +221,17 @@ public class Chess {
 		}
 
 		// take out whitespaces ex: "  a2  a3  " --> "a2a3"
-		move.replace(" ", "");
+		move = move.replace(" ", "");
 
 		char file1 = move.charAt(0);
 		char rank1 = move.charAt(1);
 		char file2 = move.charAt(2);
 		char rank2 = move.charAt(3);
 
+		// move cannot be stay in same place
+		if (file1 == file2 && rank1 == rank2){
+			return true;
+		}
 		// ensure that both files are valid (letters a-h). if INVALID call badNotation
 		if (file1 < 97 || file1 > 104 || file2 < 97 || file2 > 104){
 			return true;
@@ -262,22 +280,73 @@ public class Chess {
 	 *
 	 *
 	 */
-	private static ReturnPiece parseMove(String move) {
-		String[] parts = move.split(" ");
+	private static Position[] parseMove(Position start, Position end, String move) {
 
-		ReturnPiece.PieceFile startFile = ReturnPiece.PieceFile.valueOf(parts[0].substring(0,1));
-		int startRank = Integer.parseInt(parts[0].substring(1,2));
+		// trim any trailing or leading white spaces
+		move = move.trim();
 
-		ReturnPiece.PieceFile destFile = ReturnPiece.PieceFile.valueOf(parts[1].substring(0,1));
-		int destRank = Integer.parseInt(parts[1].substring(1,2));
+		// split the move based on spaces
+		String[] splitMove = move.split(" ");
 
-		String promotionPiece = null;
-		if (parts.length > 2) {
-			promotionPiece = parts[2];
+		// parsing the starting position
+		ReturnPiece.PieceFile startFile = ReturnPiece.PieceFile.valueOf(splitMove[0].substring(0, 1));
+		int startRank = Integer.parseInt(splitMove[0].substring(1, 2));
+
+		// parsing the ending position
+		ReturnPiece.PieceFile destFile = ReturnPiece.PieceFile.valueOf(splitMove[1].substring(0, 1));
+		int destRank = Integer.parseInt(splitMove[1].substring(1, 2));
+
+		// set the parsed positions to the given Position objects
+		start.setFile(startFile);
+		start.setRank(startRank);
+		end.setFile(destFile);
+		end.setRank(destRank);
+
+		// default promotion is to Queen
+		if(currPlayer == Player.white) {
+			ReturnPiece.PieceType promotionPiece = ReturnPiece.PieceType.WQ;
+		} else {
+			ReturnPiece.PieceType promotionPiece = ReturnPiece.PieceType.BQ;
+		}
+
+		// if there is a pawn promotion
+		if (splitMove.length > 2) {
+			char promotionChar = Character.toUpperCase(splitMove[2].charAt(0));
+			pawnPromotion(promotionChar, getPieceAt(start));
 		}
 
 
-		return null;
+		// Check for special commands
+		if ("resign".equalsIgnoreCase(move)) {
+			currentGame.message = (currPlayer == Player.white) ? ReturnPlay.Message.RESIGN_WHITE_WINS : ReturnPlay.Message.RESIGN_BLACK_WINS;
+		} else if (move.endsWith("draw?")) {
+			currentGame.message = ReturnPlay.Message.DRAW;
+		}
+
+		Position[] startAndEnd = {start, end};
+		return startAndEnd;
+	}
+
+	private static void pawnPromotion(char promotionChar, ReturnPiece.PieceType promoted) {
+		ReturnPiece.PieceType promotionPiece = null;
+
+		switch (promotionChar) {
+			case 'N':
+				promotionPiece = (currPlayer == Player.white) ? ReturnPiece.PieceType.WN : ReturnPiece.PieceType.BN;
+				break;
+			case 'B':
+				promotionPiece = (currPlayer == Player.white) ? ReturnPiece.PieceType.WB : ReturnPiece.PieceType.BB;
+				break;
+			case 'R':
+				promotionPiece = (currPlayer == Player.white) ? ReturnPiece.PieceType.WR : ReturnPiece.PieceType.BR;
+				break;
+			case 'Q':
+				promotionPiece = (currPlayer == Player.white) ? ReturnPiece.PieceType.WQ : ReturnPiece.PieceType.BQ;
+				break;
+		}
+
+		promoted = promotionPiece;
+
 
 	}
 
@@ -286,16 +355,53 @@ public class Chess {
 	 * FUNCTION: gets the piece at the square in question
 	 *
 	 */
-	private ReturnPiece.PieceType getPieceAt(ReturnPiece.PieceFile file, int rank) {
+	private static ReturnPiece.PieceType getPieceAt(Position position) {
 
-		for(int i  = 0; i< currentGame.piecesOnBoard.size(); i++) {
-			ReturnPiece piece = currentGame.piecesOnBoard.get(i);
-			if(piece.pieceFile == file && piece.pieceRank == rank) {
+		for (ReturnPiece piece : currentGame.piecesOnBoard) {
+			if (piece.pieceFile == position.getFile() && piece.pieceRank == position.getRank()) {
 				return piece.pieceType;
 			}
 		}
+
 		return null;
 
+	}
+
+	/*
+	 * FUNCTION: takes ReturnPiece info and returns corresponding piece obj
+	 */
+	private static Piece returnPiece(ReturnPiece.PieceType pieceType, ReturnPiece.PieceFile file, int rank){
+		// pawns
+		if (pieceType == ReturnPiece.PieceType.BP || pieceType == ReturnPiece.PieceType.WP){
+			return new Pawn(pieceType, new Position(file, rank));
+		}
+
+		// rooks
+		else if (pieceType == ReturnPiece.PieceType.BR || pieceType == ReturnPiece.PieceType.WR){
+			return new Rook(pieceType, new Position(file, rank));
+		}
+
+		// bishops
+		else if (pieceType == ReturnPiece.PieceType.BB || pieceType == ReturnPiece.PieceType.WB){
+			return new Bishop(pieceType, new Position(file, rank));
+		}
+
+		// knights
+		else if (pieceType == ReturnPiece.PieceType.BN || pieceType == ReturnPiece.PieceType.WN){
+			return new Knight(pieceType, new Position(file, rank));
+		}
+
+		// queens
+		else if (pieceType == ReturnPiece.PieceType.BQ || pieceType == ReturnPiece.PieceType.WQ){
+			return new Queen(pieceType, new Position(file, rank));
+		}
+
+		// kings
+		else if (pieceType == ReturnPiece.PieceType.BK || pieceType == ReturnPiece.PieceType.WK){
+			return new King(pieceType, new Position(file, rank));
+		}
+
+		return null;
 	}
 
 

@@ -1,5 +1,7 @@
 package chess;
 
+import java.util.ArrayList;
+
 public class Knight extends Piece {
 
 	public Knight(ReturnPiece.PieceType pieceType, Position position) {
@@ -7,9 +9,13 @@ public class Knight extends Piece {
     }
 
 	@Override
-	public boolean isValidMove(Position destination) {
+	public boolean isValidMove(ReturnPlay currentGame, Position destination) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	public ArrayList<Position> getSpotsOnPath(Position source, Position destination){
+		return null;
 	}
 
 }

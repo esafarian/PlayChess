@@ -1,5 +1,7 @@
 package chess;
 
+import java.util.ArrayList;
+
 abstract class Piece {
     protected ReturnPiece returnPiece;
     protected Position position;  // This represents the current position of the piece.
@@ -27,7 +29,8 @@ abstract class Piece {
         this.returnPiece.pieceRank = position.getRank();
     }
 
-    public abstract boolean isValidMove(Position destination);
+    public abstract boolean isValidMove(ReturnPlay currentGame, Position destination);
+    public abstract ArrayList<Position> getSpotsOnPath(Position source, Position destination);
 
 	public void executeMove(Position destination) {
 		

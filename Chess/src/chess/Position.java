@@ -32,6 +32,33 @@ class Position {
         this.rank = rank;
     }
 
+    public char getFileChar() {
+        return file.name().charAt(0);
+    }
+
+    public ReturnPiece.PieceFile convertIntToFile (int intFile) {
+        switch (intFile){
+            case 'a':
+                return ReturnPiece.PieceFile.a;
+            case 'b':
+                return ReturnPiece.PieceFile.b;
+            case 'c':
+                return ReturnPiece.PieceFile.c;
+            case 'd':
+                return ReturnPiece.PieceFile.d;
+            case 'e':
+                return ReturnPiece.PieceFile.e;
+            case 'f':
+                return ReturnPiece.PieceFile.f;
+            case 'g':
+                return ReturnPiece.PieceFile.g;
+            case 'h':
+                return ReturnPiece.PieceFile.h;
+        }
+
+        return null;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
