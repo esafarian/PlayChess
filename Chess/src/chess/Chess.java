@@ -227,6 +227,7 @@ public class Chess {
 		return false;
 	}
 
+
 	/*
 	 * USED IN: play()
 	 * FUNCTION: checks does the piece the player wants to move belong to them?
