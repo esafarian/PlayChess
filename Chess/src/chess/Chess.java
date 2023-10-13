@@ -65,18 +65,13 @@ public class Chess {
 		
 		// set currentGame msg to null at start of each move
 				currentGame.message = null;
+				// create position objects to be updated with parsing of move
+				Position start = new Position(null, 0);
+				Position end = new Position(null, 0);
+				parseMove(start, end, move);
 				
-				// is move = "resign"?
-				if (move.equalsIgnoreCase("resign")) {
-					if (currPlayer == Player.white) {
-						currentGame.message = ReturnPlay.Message.RESIGN_BLACK_WINS;
-					} else {
-						currentGame.message = ReturnPlay.Message.RESIGN_WHITE_WINS;
-					}
-
-					return currentGame;
-				}
 				
+			
 				// is the move in correct FileRank A, FileRank B notation?
 				// not case-sensitive. also ensures that the move is on the board
 				if ( isBadNotation(move) ){
@@ -92,11 +87,9 @@ public class Chess {
 				}
 
 				// try to carry out move, including special moves
-				
-				parseMove(move);
 
 				// update whose turn it is?
-
+				currPlayer = Player.black;
 				// check for "draw" after executing move
 
 				return currentGame;
@@ -112,8 +105,6 @@ public class Chess {
 				currPlayer = Player.white;
 				currentGame.piecesOnBoard = new ArrayList<>();
 				fillBoard();
-
-				
 
 			}
 			
@@ -185,6 +176,11 @@ public class Chess {
 
 			}
 
+			/*
+			 * USED IN: fillBoard()
+			 * FUNCTION: populates piecesOnBoard arraylist
+			 * 
+			 */
 			private static ReturnPiece addPiece(ArrayList<ReturnPiece> piecesOnBoard, ReturnPiece.PieceType type, ReturnPiece.PieceFile file, int rank) {
 				ReturnPiece piece = new ReturnPiece();
 			    piece.pieceType = type;
@@ -233,54 +229,108 @@ public class Chess {
 
 				return true;
 			}
-
-        	
+			
 			/* USED IN: play()
-			 * FUNCTION: parses String input and returns
+			 * FUNCTION: parses String input and updates start and end position objects
 			 * 
-			 * 
-			 */
-			
-			
-			 private static ReturnPiece parseMove(String move) {
-			    String[] parts = move.split(" ");
+			 */		
+			private static void parseMove(Position start, Position end, String move) {
 
-			    ReturnPiece.PieceFile startFile = ReturnPiece.PieceFile.valueOf(parts[0].substring(0,1));
-			    int startRank = Integer.parseInt(parts[0].substring(1,2));
+			    // trim any trailing or leading white spaces
+			    move = move.trim();
 
-			    ReturnPiece.PieceFile destFile = ReturnPiece.PieceFile.valueOf(parts[1].substring(0,1));
-			    int destRank = Integer.parseInt(parts[1].substring(1,2));
+			    // split the move based on spaces
+			    String[] splitMove = move.split(" ");
 
-			    String promotionPiece = null;
-			    if (parts.length > 2) {
-			        promotionPiece = parts[2];
+			    // parsing the starting position
+			    ReturnPiece.PieceFile startFile = ReturnPiece.PieceFile.valueOf(splitMove[0].substring(0, 1).toUpperCase());
+			    int startRank = Integer.parseInt(splitMove[0].substring(1, 2));
+
+			    // parsing the ending position
+			    ReturnPiece.PieceFile destFile = ReturnPiece.PieceFile.valueOf(splitMove[1].substring(0, 1).toUpperCase());
+			    int destRank = Integer.parseInt(splitMove[1].substring(1, 2));
+
+			    // set the parsed positions to the given Position objects
+			    start.setFile(startFile);
+			    start.setRank(startRank);
+			    end.setFile(destFile);
+			    end.setRank(destRank);
+
+			    // default promotion is to Queen
+			    if(currPlayer == Player.white) {
+			    	 ReturnPiece.PieceType promotionPiece = ReturnPiece.PieceType.WQ;
+			    } else {
+			    	 ReturnPiece.PieceType promotionPiece = ReturnPiece.PieceType.BQ;
 			    }
-			    
-			    
-			    
-			    
+			   
+			    // if there is a pawn promotion
+			    if (splitMove.length > 2) {
+			        char promotionChar = Character.toUpperCase(splitMove[2].charAt(0));
+			        pawnPromotion(promotionChar, getPieceAt(start));
+			    }
+			       
+
+			    // Check for special commands
+			    if ("resign".equalsIgnoreCase(move)) {
+			        currentGame.message = (currPlayer == Player.white) ? ReturnPlay.Message.RESIGN_WHITE_WINS : ReturnPlay.Message.RESIGN_BLACK_WINS;
+			    } else if (move.endsWith("draw?")) {
+			        currentGame.message = ReturnPlay.Message.DRAW;
+			    }
 			}
+
+				 
 			
 			/*
 			 * USED IN: play()
 			 * FUNCTION: gets the piece at the square in question
 			 * 
 			 */
-			private ReturnPiece.PieceType getPieceAt(ReturnPiece.PieceFile file, int rank) {
+			private static ReturnPiece.PieceType getPieceAt(Position position) {
 				
-				for(int i  = 0; i< currentGame.piecesOnBoard.size(); i++) {
-					ReturnPiece piece = currentGame.piecesOnBoard.get(i);
-					if(piece.pieceFile == file && piece.pieceRank == rank) {
-						return piece.pieceType;
-					}
-				}
-				return null;
+				for (ReturnPiece piece : currentGame.piecesOnBoard) {
+			        if (piece.pieceFile == position.getFile() && piece.pieceRank == position.getRank()) {
+			            return piece.pieceType; 
+			        }
+			    }
+
+			    return null;
 			
 			}
+			
+			/*
+			 * USED IN: parsemOVE()
+			 * FUNCTION: after input is parsed, if there a pawn to be promoted, replace that pawn's piece type with
+			 * corresponding piecetype
+			 * 
+			 */
+			
+			private static void pawnPromotion(char promotionChar, ReturnPiece.PieceType promoted) {
+				ReturnPiece.PieceType promotionPiece = null;
+				
+				switch (promotionChar) {
+		            case 'N':
+		                promotionPiece = (currPlayer == Player.white) ? ReturnPiece.PieceType.WN : ReturnPiece.PieceType.BN;
+		                break;
+		            case 'B':
+		                promotionPiece = (currPlayer == Player.white) ? ReturnPiece.PieceType.WB : ReturnPiece.PieceType.BB;
+		                break;
+		            case 'R':
+		                promotionPiece = (currPlayer == Player.white) ? ReturnPiece.PieceType.WR : ReturnPiece.PieceType.BR;
+		                break;
+		            case 'Q':
+		                promotionPiece = (currPlayer == Player.white) ? ReturnPiece.PieceType.WQ : ReturnPiece.PieceType.BQ;
+		                break;
+		        }
+				
+				promoted = promotionPiece;
+
+		      
+		    }
+		}
 
 			
 
 		
-	}
+
 
 

@@ -2,7 +2,7 @@ package chess;
 
 abstract class Piece {
     protected ReturnPiece returnPiece;
-    protected Position position;  // This represents the current position of the piece.
+    protected Position position; 
 
     public Piece(ReturnPiece.PieceType pieceType, Position position) {
     	
