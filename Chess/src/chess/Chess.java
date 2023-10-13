@@ -98,8 +98,12 @@ public class Chess {
 		start = startAndEnd[0];
 		end = startAndEnd[1];
 
-		ReturnPiece.PieceType currPieceType = getPieceAt(start);
-		Piece currPiece = returnPiece(currPieceType, start.getFile(), start.getRank());
+		ReturnPiece currReturnPiece = new ReturnPiece();
+		currReturnPiece.pieceType = getPieceAt(start);
+		currReturnPiece.pieceRank = start.getRank();
+		currReturnPiece.pieceFile = start.getFile();
+
+		Piece currPiece = returnPiece(currReturnPiece.pieceType, start.getFile(), start.getRank());
 
 		// second: can the piece they want to move move like that? / is there a piece in the way?
 		if ( !currPiece.isValidMove(currentGame, end) ){
@@ -110,6 +114,8 @@ public class Chess {
 		// third: will the move put its own king in check?
 
 		// try to carry out move, including special moves
+		currPiece.executeMove(end);
+		currentGame = executeMove(currentGame, end, currReturnPiece);
 
 		// update whose turn it is?
 
@@ -402,6 +408,18 @@ public class Chess {
 		}
 
 		return null;
+	}
+
+	public static ReturnPlay executeMove(ReturnPlay currentGame, Position destination, ReturnPiece currReturnPiece) {
+		int i = currentGame.piecesOnBoard.indexOf(currReturnPiece);
+		currentGame.piecesOnBoard.get(i).pieceFile = destination.getFile();
+		currentGame.piecesOnBoard.get(i).pieceRank = destination.getRank();
+
+		// check for take
+		// check for special move
+		// check for check
+
+		return currentGame;
 	}
 
 

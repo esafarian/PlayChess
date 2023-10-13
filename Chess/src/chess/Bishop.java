@@ -49,11 +49,11 @@ public class Bishop extends Piece {
 		char destinationFile = destination.getFileChar();
 		int destinationRank = destination.getRank();
 
-		int fileDirection = sourceFile - destinationFile;
+		int fileDirection = destinationFile - sourceFile;
 		if (fileDirection > 0) fileDirection = 1;
 		else fileDirection = -1;
 
-		int rankDirection = sourceRank - destinationRank;
+		int rankDirection = destinationRank - sourceRank;
 		if (rankDirection > 0) rankDirection = 1;
 		else rankDirection = -1;
 
@@ -61,7 +61,7 @@ public class Bishop extends Piece {
 		// get all spots between
 		ArrayList<Position> spotsOnPath = new ArrayList<>();
 		for (int i = 1; i <= numSpots; i++){
-			Position currSpot = new Position(null, 'a');
+			Position currSpot = new Position(null, 1);
 
 			// currSpot's file
 			currSpot.setFile(source.convertIntToFile(sourceFile + (fileDirection * i)));

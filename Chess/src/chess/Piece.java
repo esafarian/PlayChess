@@ -33,6 +33,7 @@ abstract class Piece {
     public abstract ArrayList<Position> getSpotsOnPath(Position source, Position destination);
 
 	public void executeMove(Position destination) {
-		
+		this.position = destination;
+        // check for special move? take? check? !!!!
 	}
 }
