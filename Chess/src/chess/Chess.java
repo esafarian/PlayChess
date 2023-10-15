@@ -98,12 +98,6 @@ public class Chess {
 			return currentGame;
 		}
 
-//		Position start = new Position(null, 1);
-//		Position end = new Position(null, 1);
-//		Position[] startAndEnd = parseMove(start, end, move);
-//		start = startAndEnd[0];
-//		end = startAndEnd[1];
-
 		// store the piece the player wants to move
 		ReturnPiece currReturnPiece = new ReturnPiece();
 		currReturnPiece.pieceType = getPieceAt(start);
@@ -118,13 +112,25 @@ public class Chess {
 			return currentGame;
 		}
 
+
 		// third: will the move put its own king in check?
 
 		// try to carry out move, including special moves
+
+		// TESTING!!!!
 		currPiece.executeMove(end);
 		currentGame = executeMove(currentGame, end, currReturnPiece);
+		if (currPiece.resultsInCheck(currentGame)){
+			System.out.println("King is in check!");
+		}
 
 		// update whose turn it is?
+//		if (currPlayer == Player.white){
+//			currPlayer = Player.black;
+//		}
+//		else {
+//			currPlayer = Player.white;
+//		}
 
 		// check for "draw" after executing move
 
