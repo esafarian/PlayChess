@@ -8,9 +8,18 @@ public class King extends Piece {
         super(pieceType, position);
     }
 
+	// can move 1 square in any direction
 	@Override
 	public boolean isValidMove(ReturnPlay currentGame, Position destination) {
-		// TODO Auto-generated method stub
+		Position source = position;
+
+		int fileChange = Math.abs(destination.getFileChar() - source.getFileChar());
+		int rankChange = Math.abs(destination.getRank() - source.getRank());
+
+		if ((fileChange + rankChange == 1) || (fileChange == 1 && rankChange == 1)){
+			return true;
+		}
+
 		return false;
 	}
 
