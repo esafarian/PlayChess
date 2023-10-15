@@ -84,20 +84,27 @@ public class Chess {
 			return currentGame;
 		}
 
-		// is it a valid move?
-		// first: does the piece the player wants to move belong to them?
-		if ( !hasValidPiece(move) ){
-			currentGame.message = ReturnPlay.Message.ILLEGAL_MOVE;
-			return currentGame;
-		}
-
-		// store the piece the player wants to move
+		// parse move after verifying notation
 		Position start = new Position(null, 1);
 		Position end = new Position(null, 1);
 		Position[] startAndEnd = parseMove(start, end, move);
 		start = startAndEnd[0];
 		end = startAndEnd[1];
 
+		// is it a valid move?
+		// first: does the piece the player wants to move belong to them?
+		if ( !hasValidPiece(start) ){
+			currentGame.message = ReturnPlay.Message.ILLEGAL_MOVE;
+			return currentGame;
+		}
+
+//		Position start = new Position(null, 1);
+//		Position end = new Position(null, 1);
+//		Position[] startAndEnd = parseMove(start, end, move);
+//		start = startAndEnd[0];
+//		end = startAndEnd[1];
+
+		// store the piece the player wants to move
 		ReturnPiece currReturnPiece = new ReturnPiece();
 		currReturnPiece.pieceType = getPieceAt(start);
 		currReturnPiece.pieceRank = start.getRank();
@@ -226,13 +233,13 @@ public class Chess {
 			return true;
 		}
 
-		// take out whitespaces ex: "  a2  a3  " --> "a2a3"
-		move = move.replace(" ", "");
+		// trim leading/trailing whitespaces: "  a2  a3  " --> "a2  a3"
+		move = move.trim();
 
 		char file1 = move.charAt(0);
 		char rank1 = move.charAt(1);
-		char file2 = move.charAt(2);
-		char rank2 = move.charAt(3);
+		char file2 = move.charAt(3);
+		char rank2 = move.charAt(4);
 
 		// move cannot be stay in same place
 		if (file1 == file2 && rank1 == rank2){
@@ -257,9 +264,9 @@ public class Chess {
 	 * FUNCTION: checks does the piece the player wants to move belong to them?
 	 * RETURNS: TRUE if the piece is found and belongs to player, FALSE if piece not found or doesn't belong to player
 	 */
-	public static boolean hasValidPiece(String move){
-		char file1 = move.charAt(0);
-		char rank1 = move.charAt(1);
+	public static boolean hasValidPiece(Position start){
+		char file1 = start.getFileChar();
+		int rank1 = start.getRank();
 
 		// does the piece on FileRankA belong to the current player?
 		for (int i = 0; i<currentGame.piecesOnBoard.size(); i++){
@@ -267,7 +274,7 @@ public class Chess {
 
 			// if piece is found check if it belongs to the player
 			if ( piece.pieceFile.name().charAt(0) == file1
-					&& piece.pieceRank == rank1-'0' ){
+					&& piece.pieceRank == rank1 ){
 
 				// belongs to the player
 				if (piece.pieceType.name().toLowerCase().charAt(0) == currPlayer.name().charAt(0)){
