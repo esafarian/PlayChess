@@ -27,6 +27,7 @@ public class Rook extends Piece{
 
 		// is there a piece in between start and dest? rook can't jump
 		ArrayList<Position> spotsOnPath = getSpotsOnPath(source, destination);
+		if (spotsOnPath.size() == 0) return true;
 		for (Position spot : spotsOnPath){
 			// check if any pieces block the move
 			for (ReturnPiece pieceOnBoard : currentGame.piecesOnBoard){

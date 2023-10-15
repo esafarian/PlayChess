@@ -23,6 +23,7 @@ public class Bishop extends Piece {
 
 		// is there a piece in between start and destination? bishop can't jump.
 		ArrayList<Position> spotsOnPath = getSpotsOnPath(source, destination);
+		if (spotsOnPath.size() == 0) return true;
 		for (Position spot : spotsOnPath){
 			// check if any of the pieces block the move
 			for (ReturnPiece pieceOnBoard : currentGame.piecesOnBoard){
