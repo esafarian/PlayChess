@@ -75,25 +75,42 @@ abstract class Piece {
 
 
     // will the current move put the current player in check?
-    public void selfcheckCheck(ArrayList<ReturnPiece> piecesOnBoard, Position destination){
+    public boolean willCheckSelf(ReturnPlay currentGame, Position destination){
+        ArrayList<ReturnPiece> piecesOnBoard = currentGame.piecesOnBoard;
+
+        // save piece's OG position, hypothesize board, run checks, then return board to OG state
+        Position pieceOGPosition = new Position(returnPiece.pieceFile, returnPiece.pieceRank);
         ArrayList<ReturnPiece> hypotheticalBoard = createHypotheticalBoard(piecesOnBoard, destination);
 
+
+        char playerColor = returnPiece.pieceType.name().charAt(0);
+
+        PlayChess.printBoard(hypotheticalBoard);
+
         // run "check" check on all the opponent's pieces
-        for (ReturnPiece piece : piecesOnBoard){
+        for (ReturnPiece retPiece : piecesOnBoard){
             // if opponent's piece
-                // run "check" check
+            if (retPiece.pieceType.name().charAt(0) != playerColor){
+                // create a piece obj of this ReturnPiece
+                Piece piece = Chess.returnPiece(retPiece.pieceType, retPiece.pieceFile, retPiece.pieceRank);
 
-
-            // reset the board?
+                // check if any move this piece can make will result in check
+                if (piece.resultsInCheck(currentGame)){
+                    unhypothesizeBoard(hypotheticalBoard, destination);
+                    return true;
+                }
+            }
         }
 
-        // reset the board?
-
+        unhypothesizeBoard(hypotheticalBoard, destination);
+        return false;
     }
 
     public ArrayList<ReturnPiece> createHypotheticalBoard(ArrayList<ReturnPiece> piecesOnBoard, Position destination){
         // create hypothetical move
-        ReturnPiece hypotheticalPiece = returnPiece;
+        ReturnPiece hypotheticalPiece = new ReturnPiece();
+        hypotheticalPiece.pieceType = returnPiece.pieceType;
+
         hypotheticalPiece.pieceRank = destination.getRank();
         hypotheticalPiece.pieceFile = destination.getFile();
 
@@ -102,5 +119,20 @@ abstract class Piece {
         piecesOnBoard.add(hypotheticalPiece);
 
         return piecesOnBoard;
+    }
+
+    public ArrayList<ReturnPiece> unhypothesizeBoard(ArrayList<ReturnPiece> hypotheticalBoard, Position destination){
+        // create hypothetical move
+        ReturnPiece hypotheticalPiece = new ReturnPiece();
+        hypotheticalPiece.pieceType = returnPiece.pieceType;
+
+        hypotheticalPiece.pieceRank = destination.getRank();
+        hypotheticalPiece.pieceFile = destination.getFile();
+
+        // pop hypothetical and replace with OG piece
+        hypotheticalBoard.remove(hypotheticalPiece);
+        hypotheticalBoard.add(returnPiece);
+
+        return hypotheticalBoard;
     }
 }

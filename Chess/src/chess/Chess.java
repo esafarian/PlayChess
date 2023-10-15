@@ -114,6 +114,10 @@ public class Chess {
 
 
 		// third: will the move put its own king in check?
+		if ( currPiece.willCheckSelf(currentGame, end) ){
+			currentGame.message = ReturnPlay.Message.ILLEGAL_MOVE;
+			return currentGame;
+		}
 
 		// try to carry out move, including special moves
 
@@ -124,15 +128,18 @@ public class Chess {
 			System.out.println("King is in check!");
 		}
 
-		// update whose turn it is?
-//		if (currPlayer == Player.white){
-//			currPlayer = Player.black;
-//		}
-//		else {
-//			currPlayer = Player.white;
-//		}
-
 		// check for "draw" after executing move
+
+		// update whose turn it is?
+		if (currPlayer == Player.white){
+			currPlayer = Player.black;
+		}
+		else {
+			currPlayer = Player.white;
+		}
+
+		System.out.println(currPlayer.name() + "'s turn");
+
 
 		return currentGame;
 	}
@@ -389,7 +396,7 @@ public class Chess {
 	/*
 	 * FUNCTION: takes ReturnPiece info and returns corresponding piece obj
 	 */
-	private static Piece returnPiece(ReturnPiece.PieceType pieceType, ReturnPiece.PieceFile file, int rank){
+	public static Piece returnPiece(ReturnPiece.PieceType pieceType, ReturnPiece.PieceFile file, int rank){
 		// pawns
 		if (pieceType == ReturnPiece.PieceType.BP || pieceType == ReturnPiece.PieceType.WP){
 			return new Pawn(pieceType, new Position(file, rank));
