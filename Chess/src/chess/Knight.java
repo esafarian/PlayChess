@@ -8,9 +8,19 @@ public class Knight extends Piece {
         super(pieceType, position);
     }
 
+	// moves in an L-shape. can jump over other pieces.
 	@Override
 	public boolean isValidMove(ReturnPlay currentGame, Position destination) {
-		// TODO Auto-generated method stub
+		Position source = position;
+
+		int fileChange = Math.abs(destination.getFileChar() - source.getFileChar());
+		int rankChange = Math.abs(destination.getRank() - source.getRank());
+
+		// is the move in an L-shape?
+		if (fileChange == 2 && rankChange == 1 || fileChange == 1 && rankChange == 2){
+			return true;
+		}
+
 		return false;
 	}
 
