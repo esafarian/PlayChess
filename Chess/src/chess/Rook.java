@@ -3,8 +3,11 @@ import java.util.ArrayList;
 
 public class Rook extends Piece{
 
+	private boolean hasMoved;
+	
 	public Rook(ReturnPiece.PieceType pieceType, Position position) {
         super(pieceType, position);
+        this.hasMoved = false;
     }
 
 	/* can move any number of squares either horizontally or vertically
@@ -35,7 +38,7 @@ public class Rook extends Piece{
 				}
 			}
 		}
-
+		hasMoved = true;
 		return true;
 	}
 
@@ -88,5 +91,9 @@ public class Rook extends Piece{
 		}
 
 		return spotsOnPath;
+	}
+	
+	public boolean hasMoved() {
+		return hasMoved;
 	}
 }

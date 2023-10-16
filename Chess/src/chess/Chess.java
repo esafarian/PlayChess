@@ -344,13 +344,14 @@ public class Chess {
 		end.setRank(destRank);
 
 		// if there is a pawn promotion
+		// method does not return the promotion character so this should be handled here
 		if (splitMove.length > 2) {
 			char promotionChar = Character.toUpperCase(splitMove[2].charAt(0));
 			
 			// white pawn promotion
 			if(getPieceAt(start) == ReturnPiece.PieceType.WP) {
 				if(end.getRank() == 8) {
-					pawnPromotion(promotionChar, getPieceAt(start));
+					pawnPromotion(promotionChar, getPieceAt(start), end);
 				}
 			}  else {
 				currentGame.message = ReturnPlay.Message.ILLEGAL_MOVE;
@@ -359,7 +360,7 @@ public class Chess {
 			//black pawn promotion
 			if(getPieceAt(start) == ReturnPiece.PieceType.BP) {
 				if(end.getRank() == 1) {
-					pawnPromotion(promotionChar, getPieceAt(start));
+					pawnPromotion(promotionChar, getPieceAt(start), end);
 				}
 			} else {
 				currentGame.message = ReturnPlay.Message.ILLEGAL_MOVE;
@@ -372,7 +373,36 @@ public class Chess {
 			currentGame.message = (currPlayer == Player.white) ? ReturnPlay.Message.RESIGN_WHITE_WINS : ReturnPlay.Message.RESIGN_BLACK_WINS;
 		} else if (move.endsWith("draw?")) {
 			currentGame.message = ReturnPlay.Message.DRAW;
+			
 		}
+	
+		
+		
+		if (move.equals("O-O") || move.equals("O-O-O")) {
+	        // kingside Castling
+	        if (move.equals("O-O")) {
+	            if (currPlayer == Player.white) {
+	                start.setFile(ReturnPiece.PieceFile.e);
+	                start.setRank(1);
+	                end.setFile(ReturnPiece.PieceFile.g);
+	                end.setRank(1);
+	               
+	                attemptCastling(move, start, end);
+	            }
+	        }
+	        // queenside Castling
+	        else if (move.equals("O-O-O")) {
+	            if (currPlayer == Player.white) {
+	                start.setFile(ReturnPiece.PieceFile.e);
+	                start.setRank(1);
+	                end.setFile(ReturnPiece.PieceFile.c);
+	                end.setRank(1);
+	                
+	                attemptCastling(move, start, end);
+	            } 
+	        }
+	    }
+
 
 		Position[] startAndEnd = {start, end};
 		return startAndEnd;
@@ -380,28 +410,40 @@ public class Chess {
 	
 	//pawn promotion
 
-	private static void pawnPromotion(char promotionChar, ReturnPiece.PieceType promoted) {
-		ReturnPiece.PieceType promotionPiece = null;
+	private static void pawnPromotion(char promotionChar, ReturnPiece.PieceType promoted, Position position) {
+	    ReturnPiece.PieceType promotionPiece = null;
 
-		switch (promotionChar) {
-			case 'N':
-				promotionPiece = (currPlayer == Player.white) ? ReturnPiece.PieceType.WN : ReturnPiece.PieceType.BN;
-				break;
-			case 'B':
-				promotionPiece = (currPlayer == Player.white) ? ReturnPiece.PieceType.WB : ReturnPiece.PieceType.BB;
-				break;
-			case 'R':
-				promotionPiece = (currPlayer == Player.white) ? ReturnPiece.PieceType.WR : ReturnPiece.PieceType.BR;
-				break;
-			case 'Q':
-				promotionPiece = (currPlayer == Player.white) ? ReturnPiece.PieceType.WQ : ReturnPiece.PieceType.BQ;
-				break;
-		}
+	    // Determine the type of piece the pawn is being promoted to.
+	    switch (promotionChar) {
+	        case 'N':
+	            promotionPiece = (currPlayer == Player.white) ? ReturnPiece.PieceType.WN : ReturnPiece.PieceType.BN;
+	            break;
+	        case 'B':
+	            promotionPiece = (currPlayer == Player.white) ? ReturnPiece.PieceType.WB : ReturnPiece.PieceType.BB;
+	            break;
+	        case 'R':
+	            promotionPiece = (currPlayer == Player.white) ? ReturnPiece.PieceType.WR : ReturnPiece.PieceType.BR;
+	            break;
+	        case 'Q':
+	            promotionPiece = (currPlayer == Player.white) ? ReturnPiece.PieceType.WQ : ReturnPiece.PieceType.BQ;
+	            break;
+	    }
 
-		promoted = promotionPiece;
+	    // remove the pawn from the board.
+	    ReturnPiece pawnToRemove = new ReturnPiece();
+	    pawnToRemove.pieceType = promoted;
+	    pawnToRemove.pieceFile = position.getFile();
+	    pawnToRemove.pieceRank = position.getRank();
+	    currentGame.piecesOnBoard.remove(pawnToRemove);
 
-
+	    // Add the promoted piece to the board at the same position.
+	    ReturnPiece newPiece = new ReturnPiece();
+	    newPiece.pieceType = promotionPiece;
+	    newPiece.pieceFile = position.getFile();
+	    newPiece.pieceRank = position.getRank();
+	    currentGame.piecesOnBoard.add(newPiece);
 	}
+
 
 	/*
 	 * USED IN: play()
@@ -464,14 +506,74 @@ public class Chess {
 
 		// ** pawn promotion handled in parseMove
 		
-		
-		
 		// check for take
 		// check for special move
 		// check for check
 
 		return currentGame;
 	}
+	
+	private static boolean attemptCastling(String move, Position kingStart, Position kingEnd) {
+		King currentKing;
+		Rook currentRook;
+		Position rookStart;
+		Position rookEnd;
+
+		//determine rook start and end positions based on move and player
+		if (move.equals("O-O")) {
+			rookStart = (currPlayer == Player.white) ? new Position(ReturnPiece.PieceFile.h, 1) : new Position(ReturnPiece.PieceFile.h, 8);
+			rookEnd = (currPlayer == Player.white) ? new Position(ReturnPiece.PieceFile.f, 1) : new Position(ReturnPiece.PieceFile.f, 8);
+		} else { // "O-O-O"
+			rookStart = (currPlayer == Player.white) ? new Position(ReturnPiece.PieceFile.a, 1) : new Position(ReturnPiece.PieceFile.a, 8);
+			rookEnd = (currPlayer == Player.white) ? new Position(ReturnPiece.PieceFile.d, 1) : new Position(ReturnPiece.PieceFile.d, 8);
+		    }
+
+		//determine piece types based on player
+		ReturnPiece.PieceType kingType = (currPlayer == Player.white) ? ReturnPiece.PieceType.WK : ReturnPiece.PieceType.BK;
+		ReturnPiece.PieceType rookType = (currPlayer == Player.white) ? ReturnPiece.PieceType.WR : ReturnPiece.PieceType.BR;
+
+		//fetch the pieces
+		Piece kingPiece = returnPiece(kingType, kingStart.getFile(), kingStart.getRank());
+		Piece rookPiece = returnPiece(rookType, rookStart.getFile(), rookStart.getRank());
+
+		//verify and cast to their specific types
+		if (kingPiece instanceof King) {
+			currentKing = (King) kingPiece;
+		        
+		} else {
+			return false; 
+		}
+
+		if (rookPiece instanceof Rook) {
+			currentRook = (Rook) rookPiece;
+		} else {
+			return false; 
+		}
+
+		// check conditions for castling
+		if (currentKing.hasMoved() || currentRook.hasMoved()) {
+			return false;
+		}
+
+		//ensure path is clear for castling
+		ReturnPiece.PieceFile[] allFiles = ReturnPiece.PieceFile.values(); 
+		int startIndex = Math.min(kingStart.getFile().ordinal(), rookStart.getFile().ordinal());
+		int endIndex = Math.max(kingStart.getFile().ordinal(), rookStart.getFile().ordinal());
+		
+		for (int i = startIndex + 1; i < endIndex; i++) {
+			if (getPieceAt(new Position(allFiles[i], kingStart.getRank())) != null) {
+				return false;
+			}
+		}
+
+		//perform the castling move
+		executeMove(currentGame, kingEnd, currentKing.returnPiece);
+		executeMove(currentGame, rookEnd, currentRook.returnPiece);
+
+		return true;
+	}
+
+
 
 
 }
