@@ -1,5 +1,7 @@
 package chess;
 
+import java.util.ArrayList;
+
 class Pawn extends Piece {
 
     public Pawn(ReturnPiece.PieceType pieceType, Position position) {
@@ -7,7 +9,7 @@ class Pawn extends Piece {
     }
 
     @Override
-    public boolean isValidMove(Position destination) {
+    public boolean isValidMove(ReturnPlay currentGame, Position destination) {
         // for white pawn
         if (returnPiece.pieceType == ReturnPiece.PieceType.WP 
                 && returnPiece.pieceFile == destination.getFile() 
@@ -32,5 +34,9 @@ class Pawn extends Piece {
         this.position = destination;
         
        
+    }
+
+    public ArrayList<Position> getSpotsOnPath(Position source, Position destination){
+        return null;
     }
 }
