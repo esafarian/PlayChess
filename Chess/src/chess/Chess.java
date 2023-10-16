@@ -119,7 +119,24 @@ public class Chess {
 			return currentGame;
 		}
 
+		// fourth: is the landing valid? ex: valid take or empty spot
+		// if valid take: remove the piece from the board
+		ReturnPiece pieceToTake = currPiece.landsOnAPiece(currentGame, end);
+		if (pieceToTake != null){
+			// can't land on your own piece
+			if (currPiece.sameColor(pieceToTake)){
+				currentGame.message = ReturnPlay.Message.ILLEGAL_MOVE;
+				return currentGame;
+			}
+			else {
+				// might have to verify it is a valid take for a pawn? !!!
+				currentGame.piecesOnBoard.remove(pieceToTake);
+			}
+		}
+
+
 		// try to carry out move, including special moves
+
 
 		// TESTING!!!!
 		currPiece.executeMove(end);

@@ -85,8 +85,6 @@ abstract class Piece {
 
         char playerColor = returnPiece.pieceType.name().charAt(0);
 
-        PlayChess.printBoard(hypotheticalBoard);
-
         // run "check" check on all the opponent's pieces
         for (ReturnPiece retPiece : piecesOnBoard){
             // if opponent's piece
@@ -103,6 +101,30 @@ abstract class Piece {
         }
 
         unhypothesizeBoard(hypotheticalBoard, destination);
+        return false;
+    }
+
+    // returns the piece on the landing spot
+    public ReturnPiece landsOnAPiece(ReturnPlay currentGame, Position destination){
+        char playerColor = returnPiece.pieceType.name().charAt(0);
+
+        // find if there is a piece on the destination
+        for (ReturnPiece piece : currentGame.piecesOnBoard) {
+            char currColor = piece.pieceType.name().charAt(0);
+
+            if (piece.pieceFile == destination.getFile() && piece.pieceRank == destination.getRank()) {
+                    return piece;
+            }
+        }
+
+        return null;
+    }
+
+    public boolean sameColor(ReturnPiece compareTo){
+        char thisColor = returnPiece.pieceType.name().charAt(0);
+        char thatColor = compareTo.pieceType.name().charAt(0);
+
+        if (thisColor == thatColor) return true;
         return false;
     }
 
