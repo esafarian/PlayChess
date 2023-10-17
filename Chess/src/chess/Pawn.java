@@ -59,7 +59,7 @@ class Pawn extends Piece {
             if (lastPawnDoubleMove != null 
                     && lastPawnDoubleMove.getFile() == destination.getFile()
                     && lastPawnDoubleMove.getRank() == position.getRank()) {
-                // Valid en passant move
+                // valid en passant move
                 return true;
             }
         }
