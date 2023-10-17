@@ -6,7 +6,6 @@ package chess;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Map;
-import java.util.HashMap;
 
 class ReturnPiece {
 	static enum PieceType {WP, WR, WN, WB, WQ, WK, BP, BR, BN, BB, BK, BQ};
@@ -56,10 +55,7 @@ public class Chess {
 	 */
 	private static ReturnPlay currentGame = new ReturnPlay();
 	private static Player currPlayer;
-	// hashmap to map Pieces to corresponding ReturnPiece objects
-	private static Map<ReturnPiece, Piece> pieceMap = new HashMap<>();
-
-
+	
 	public static ReturnPlay play(String move) {
 
 		// set currentGame msg to null at start of each move
@@ -161,28 +157,6 @@ public class Chess {
 				currentGame.message = ReturnPlay.Message.ILLEGAL_MOVE;
 			}
 		}
-
-
-		// TESTING!!!!
-	/*	currPiece.executeMove(end);
-		currentGame = executeMove(currentGame, end, currReturnPiece);
-		if (currPiece.resultsInCheck(currentGame)){
-			System.out.println("King is in check!");
-		}
-
-		// draw handled in parseMove
-		
-		// update whose turn it is?
-		if (currPlayer == Player.white){
-			currPlayer = Player.black;
-		}
-		else {
-			currPlayer = Player.white;
-		}
-
-		System.out.println(currPlayer.name() + "'s turn");
-
-/*/
 		return currentGame; 
 	}
 
@@ -191,7 +165,6 @@ public class Chess {
 	 * This method should reset the game, and start from scratch.
 	 */
 	public static void start() {
-		/* FILL IN THIS METHOD */
 		//instantiate arraylist to be filled with all the pieces *currently* on the board
 		currPlayer = Player.white;
 		currentGame.piecesOnBoard = new ArrayList<>();
@@ -214,7 +187,7 @@ public class Chess {
 			whitePawn.pieceFile = file;
 			whitePawn.pieceRank = 2;
 			Piece wp = new Pawn(whitePawn.pieceType, new Position(whitePawn.pieceFile, whitePawn.pieceRank));
-			pieceMap.put(whitePawn, wp);
+
 			currentGame.piecesOnBoard.add(whitePawn);
 
 			// black pawns
@@ -223,7 +196,6 @@ public class Chess {
 			blackPawn.pieceFile = file;
 			blackPawn.pieceRank = 7;
 			Piece bp = new Pawn(blackPawn.pieceType, new Position(blackPawn.pieceFile, blackPawn.pieceRank));
-			pieceMap.put(blackPawn, bp);
 			currentGame.piecesOnBoard.add(blackPawn);
 
 			// other pieces
@@ -231,36 +203,26 @@ public class Chess {
 				// Rooks
 				ReturnPiece wrPiece = addPiece(currentGame.piecesOnBoard, ReturnPiece.PieceType.WR, file, 1);
 				ReturnPiece brPiece = addPiece(currentGame.piecesOnBoard, ReturnPiece.PieceType.BR, file, 8);
-				pieceMap.put(wrPiece, new Rook(wrPiece.pieceType, new Position(wrPiece.pieceFile, wrPiece.pieceRank)));
-				pieceMap.put(brPiece, new Rook(brPiece.pieceType, new Position(brPiece.pieceFile, brPiece.pieceRank)));
-
+			
 			} else if (file == ReturnPiece.PieceFile.b || file == ReturnPiece.PieceFile.g) {
 				// Knights
 				ReturnPiece wnPiece = addPiece(currentGame.piecesOnBoard, ReturnPiece.PieceType.WN, file, 1);
 				ReturnPiece bnPiece = addPiece(currentGame.piecesOnBoard, ReturnPiece.PieceType.BN, file, 8);
-				pieceMap.put(wnPiece, new Knight(wnPiece.pieceType, new Position(wnPiece.pieceFile, wnPiece.pieceRank)));
-				pieceMap.put(bnPiece, new Knight(bnPiece.pieceType, new Position(bnPiece.pieceFile, bnPiece.pieceRank)));
-
+				
 			} else if (file == ReturnPiece.PieceFile.c || file == ReturnPiece.PieceFile.f) {
 				// Bishops
 				ReturnPiece wbPiece = addPiece(currentGame.piecesOnBoard, ReturnPiece.PieceType.WB, file, 1);
 				ReturnPiece bbPiece = addPiece(currentGame.piecesOnBoard, ReturnPiece.PieceType.BB, file, 8);
-				pieceMap.put(wbPiece, new Bishop(wbPiece.pieceType, new Position(wbPiece.pieceFile, wbPiece.pieceRank)));
-				pieceMap.put(bbPiece, new Bishop(bbPiece.pieceType, new Position(bbPiece.pieceFile, bbPiece.pieceRank)));
-
+			
 			} else if (file == ReturnPiece.PieceFile.d) {
 				// Queens
 				ReturnPiece wqPiece = addPiece(currentGame.piecesOnBoard, ReturnPiece.PieceType.WQ, file, 1);
 				ReturnPiece bqPiece = addPiece(currentGame.piecesOnBoard, ReturnPiece.PieceType.BQ, file, 8);
-				pieceMap.put(wqPiece, new Queen(wqPiece.pieceType, new Position(wqPiece.pieceFile, wqPiece.pieceRank)));
-				pieceMap.put(bqPiece, new Queen(bqPiece.pieceType, new Position(bqPiece.pieceFile, bqPiece.pieceRank)));
-
+				
 			} else if (file == ReturnPiece.PieceFile.e) {
 				// Kings
 				ReturnPiece wkPiece = addPiece(currentGame.piecesOnBoard, ReturnPiece.PieceType.WK, file, 1);
 				ReturnPiece bkPiece = addPiece(currentGame.piecesOnBoard, ReturnPiece.PieceType.BK, file, 8);
-				pieceMap.put(wkPiece, new King(wkPiece.pieceType, new Position(wkPiece.pieceFile, wkPiece.pieceRank)));
-				pieceMap.put(bkPiece, new King(bkPiece.pieceType, new Position(bkPiece.pieceFile, bkPiece.pieceRank)));
 			}
 		}
 
