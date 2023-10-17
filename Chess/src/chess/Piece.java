@@ -120,6 +120,45 @@ abstract class Piece {
         return null;
     }
 
+    public boolean resultsInCheckMate(ReturnPlay currentGame){
+        ArrayList<ReturnPiece> piecesOnBoard = currentGame.piecesOnBoard;
+
+        // find the king
+        Position kingPosition = new Position(null, 1);
+
+
+        // determine who is the opponent
+        boolean playerIsWhite = (returnPiece.pieceType.name().charAt(0) == 'W');
+
+        // find opponent king
+        for (ReturnPiece piece : piecesOnBoard){
+            if (playerIsWhite) {
+                if (piece.pieceType == ReturnPiece.PieceType.BK){
+                    kingPosition.setFile(piece.pieceFile);
+                    kingPosition.setRank(piece.pieceRank);
+                }
+            }
+
+            else {
+                if (piece.pieceType == ReturnPiece.PieceType.WK){
+                    kingPosition.setFile(piece.pieceFile);
+                    kingPosition.setRank(piece.pieceRank);
+                }
+            }
+        }
+
+        // for all moving options of the king:
+
+
+        // run isValidMove() on start: pieceLocation, end: opponent king's position
+        if (isValidMove(currentGame, kingPosition)){
+            return true;
+        }
+
+        return false;
+
+    }
+
     public boolean sameColor(ReturnPiece compareTo){
         char thisColor = returnPiece.pieceType.name().charAt(0);
         char thatColor = compareTo.pieceType.name().charAt(0);
