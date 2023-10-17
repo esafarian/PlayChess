@@ -121,16 +121,16 @@ abstract class Piece {
         return null;
     }
 
-    public boolean sameColor(ReturnPiece compareTo){
+    public boolean sameColor(ReturnPiece compareTo) {
         char thisColor = returnPiece.pieceType.name().charAt(0);
         char thatColor = compareTo.pieceType.name().charAt(0);
-
-        if (thisColor == thatColor) return true;
-        return false;
+        return thisColor == thatColor;
     }
 
+
     public ArrayList<ReturnPiece> createHypotheticalBoard(ArrayList<ReturnPiece> piecesOnBoard, Position destination){
-        // create hypothetical move
+    	ArrayList<ReturnPiece> clonedBoard = new ArrayList<>(piecesOnBoard);
+    	// create hypothetical move
         ReturnPiece hypotheticalPiece = new ReturnPiece();
         hypotheticalPiece.pieceType = returnPiece.pieceType;
 
@@ -138,10 +138,10 @@ abstract class Piece {
         hypotheticalPiece.pieceFile = destination.getFile();
 
         // pop original piece and replace w hypothetical
-        piecesOnBoard.remove(returnPiece);
-        piecesOnBoard.add(hypotheticalPiece);
+        clonedBoard.remove(returnPiece);
+        clonedBoard.add(hypotheticalPiece);
 
-        return piecesOnBoard;
+        return clonedBoard;
     }
 
     public ArrayList<ReturnPiece> unhypothesizeBoard(ArrayList<ReturnPiece> hypotheticalBoard, Position destination){

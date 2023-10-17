@@ -334,25 +334,21 @@ public class Chess {
 			currentGame.message = ReturnPlay.Message.DRAW;
 			
 		}
-		
-		if (currPlayer == Player.white) {
-	        // White's kingside castling
-	        if (start.equals(new Position(ReturnPiece.PieceFile.e, 1)) && end.equals(new Position(ReturnPiece.PieceFile.g, 1))) {
-	            attemptCastling(start, end);	            }
-	        }
-	        // white's queenside castling
-	        else if (start.equals(new Position(ReturnPiece.PieceFile.e, 1)) && end.equals(new Position(ReturnPiece.PieceFile.c, 1))) {
-	            attemptCastling(start, end);
-	        } 
-		if (currPlayer == Player.white) {
-	        // Black's kingside castling
-	        if (start.equals(new Position(ReturnPiece.PieceFile.e, 8)) && end.equals(new Position(ReturnPiece.PieceFile.g, 8))) {
-	            attemptCastling(start, end);
-	        }
-	        // Black's queenside castling
-	        else if (start.equals(new Position(ReturnPiece.PieceFile.e, 8)) && end.equals(new Position(ReturnPiece.PieceFile.c, 8))) {
-	        	attemptCastling(start, end);
-	        }
+		// White's kingside castling
+		if (currPlayer == Player.white && start.equals(new Position(ReturnPiece.PieceFile.e, 1)) && end.equals(new Position(ReturnPiece.PieceFile.g, 1))) {
+		    attemptCastling(start, end);
+		}
+		// White's queenside castling
+		else if (currPlayer == Player.white && start.equals(new Position(ReturnPiece.PieceFile.e, 1)) && end.equals(new Position(ReturnPiece.PieceFile.c, 1))) {
+		    attemptCastling(start, end);
+		}
+		// Black's kingside castling
+		else if (currPlayer == Player.black && start.equals(new Position(ReturnPiece.PieceFile.e, 8)) && end.equals(new Position(ReturnPiece.PieceFile.g, 8))) {
+		    attemptCastling(start, end);
+		}
+		// Black's queenside castling
+		else if (currPlayer == Player.black && start.equals(new Position(ReturnPiece.PieceFile.e, 8)) && end.equals(new Position(ReturnPiece.PieceFile.c, 8))) {
+		    attemptCastling(start, end);
 		}
 
 		Position[] startAndEnd = {start, end};
@@ -454,28 +450,42 @@ public class Chess {
 	}
 
 	public static ReturnPlay executeMove(ReturnPlay currentGame, Position destination, ReturnPiece currReturnPiece) {
-		
-		int i = currentGame.piecesOnBoard.indexOf(currReturnPiece);    
-
-		if(returnPiece(currReturnPiece.pieceType, currReturnPiece.pieceFile, currReturnPiece.pieceRank) instanceof Pawn) {
-	            Pawn currentPawn = (Pawn) returnPiece(currReturnPiece.pieceType, currReturnPiece.pieceFile, currReturnPiece.pieceRank);
-
-	            if(!currentPawn.hasMoved && Math.abs(destination.getRank() - currReturnPiece.pieceRank) == 2) {
-	            	Pawn.setLastPawnMoveDoubleStep(destination); 
-	            } else {
-	                Pawn.setLastPawnMoveDoubleStep(null); 
-	            }
-	            
-	            currentPawn.hasMoved = true;
-	        } else {
-	            Pawn.setLastPawnMoveDoubleStep(null); 
-	        }
-
-	        currentGame.piecesOnBoard.get(i).pieceFile = destination.getFile();
-	        currentGame.piecesOnBoard.get(i).pieceRank = destination.getRank();
-
+	    
+	    int i = currentGame.piecesOnBoard.indexOf(currReturnPiece);
+	    if (i == -1) {
+	        System.out.println("Piece not found in the list of pieces on the board.");
 	        return currentGame;
+	    }
+
+	    // Fetch the piece once and use this reference
+	    Piece currentPiece = returnPiece(currReturnPiece.pieceType, currReturnPiece.pieceFile, currReturnPiece.pieceRank);
+
+	    if (currentPiece instanceof Pawn) {
+	        Pawn currentPawn = (Pawn) currentPiece;
+
+	        if (!currentPawn.hasMoved && Math.abs(destination.getRank() - currReturnPiece.pieceRank) == 2) {
+	            Pawn.setLastPawnMoveDoubleStep(destination);
+	        } else {
+	            Pawn.setLastPawnMoveDoubleStep(null);
+	        }
+	        
+	        currentPawn.hasMoved = true;
+	    } else {
+	        Pawn.setLastPawnMoveDoubleStep(null);
+	    }
+
+	    // Update position using a method rather than direct manipulation
+	    updatePiecePosition(currentGame, i, destination);
+
+	    return currentGame;
 	}
+
+	// Helper method to update piece position
+	private static void updatePiecePosition(ReturnPlay currentGame, int pieceIndex, Position destination) {
+	    currentGame.piecesOnBoard.get(pieceIndex).pieceFile = destination.getFile();
+	    currentGame.piecesOnBoard.get(pieceIndex).pieceRank = destination.getRank();
+	}
+
 	
 	private static void attemptCastling(Position kingStart, Position kingEnd) {
 	    King currentKing = null;
@@ -510,23 +520,24 @@ public class Chess {
 	    }
 
 	    if (currentKing.hasMoved() || currentRook.hasMoved()) {
-	    	currentGame.message = ReturnPlay.Message.ILLEGAL_MOVE;
+	        currentGame.message = ReturnPlay.Message.ILLEGAL_MOVE;
+	        return;  // Return early if conditions aren't met
 	    }
 
 	    // ensure path is clear for castling
 	    ReturnPiece.PieceFile[] allFiles = ReturnPiece.PieceFile.values(); 
 	    int startIndex = Math.min(kingStart.getFile().ordinal(), rookStart.getFile().ordinal());
 	    int endIndex = Math.max(kingStart.getFile().ordinal(), rookStart.getFile().ordinal());
-	    
+
 	    for (int i = startIndex + 1; i < endIndex; i++) {
 	        if (getPieceAt(new Position(allFiles[i], kingStart.getRank())) != null) {
-	        	currentGame.message = ReturnPlay.Message.ILLEGAL_MOVE;
+	            currentGame.message = ReturnPlay.Message.ILLEGAL_MOVE;
+	            return;  // Return early if path isn't clear
 	        }
 	    }
 
 	    executeMove(currentGame, kingEnd, currentKing.returnPiece);
 	    executeMove(currentGame, rookEnd, currentRook.returnPiece);
-
 	}
 
 

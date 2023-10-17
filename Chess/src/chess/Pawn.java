@@ -59,8 +59,13 @@ class Pawn extends Piece {
             if (lastPawnDoubleMove != null 
                     && lastPawnDoubleMove.getFile() == destination.getFile()
                     && lastPawnDoubleMove.getRank() == position.getRank()) {
-                // valid en passant move
-                return true;
+            	// valid en passant move
+            	ReturnPiece passedPawn = landsOnAPiece(currentGame, lastPawnDoubleMove);
+            	if(passedPawn != null) {
+            	    take(currentGame, passedPawn); // Remove the passed pawn.
+            	    return true;
+            	}
+
             }
         }
 

@@ -42,7 +42,7 @@ public class Bishop extends Piece {
 		int numSpots = Math.abs(source.getRank() - destination.getRank()) - 1;
 
 		// no spots between, return NULL
-		if (numSpots == 0) return null;
+		if (numSpots == 0) return new ArrayList<>();
 
 		// figure out which way file and rank changes
 		char sourceFile = source.getFileChar();
