@@ -64,7 +64,7 @@ public class Chess {
 
 		// set currentGame msg to null at start of each move
 		currentGame.message = null;
-
+		
 		// is move = "resign"?
 		if (move.equalsIgnoreCase("resign")) {
 			if (currPlayer == Player.white) {
@@ -133,10 +133,38 @@ public class Chess {
 				currentGame.piecesOnBoard.remove(pieceToTake);
 			}
 		}
+		
+		
+		String[] splitMove = move.split(" ");
+		boolean hasPawnPromotion = ((splitMove.length > 2) && (Character.toUpperCase(splitMove[2].charAt(0)) != 'D')) ||  (getPieceAt(start) == ReturnPiece.PieceType.WP && start.getRank() == 7) || (getPieceAt(start) == ReturnPiece.PieceType.BP && start.getRank() == 2);
+		if (hasPawnPromotion) {
+
+			char promotionChar = 'Q';
+			if (splitMove.length > 2)
+				promotionChar = Character.toUpperCase(splitMove[2].charAt(0));
+
+			// white pawn promotion
+			if(getPieceAt(start) == ReturnPiece.PieceType.WP) {
+				if(end.getRank() == 8) {
+					pawnPromotion(promotionChar, getPieceAt(start), end);
+				}
+			}  else {
+				currentGame.message = ReturnPlay.Message.ILLEGAL_MOVE;
+			}
+
+			//black pawn promotion
+			if(getPieceAt(start) == ReturnPiece.PieceType.BP) {
+				if(end.getRank() == 1) {
+					pawnPromotion(promotionChar, getPieceAt(start), end);
+				}
+			} else {
+				currentGame.message = ReturnPlay.Message.ILLEGAL_MOVE;
+			}
+		}
 
 
 		// TESTING!!!!
-		currPiece.executeMove(end);
+	/*	currPiece.executeMove(end);
 		currentGame = executeMove(currentGame, end, currReturnPiece);
 		if (currPiece.resultsInCheck(currentGame)){
 			System.out.println("King is in check!");
@@ -154,8 +182,8 @@ public class Chess {
 
 		System.out.println(currPlayer.name() + "'s turn");
 
-
-		return currentGame;
+/*/
+		return currentGame; 
 	}
 
 
@@ -168,8 +196,6 @@ public class Chess {
 		currPlayer = Player.white;
 		currentGame.piecesOnBoard = new ArrayList<>();
 		fillBoard();
-
-
 	}
 
 	/*
@@ -340,31 +366,6 @@ public class Chess {
 		end.setFile(destFile);
 		end.setRank(destRank);
 
-		// if there is a pawn promotion
-		// method does not return the promotion character so this should be handled here
-		if (splitMove.length > 2) {
-			char promotionChar = Character.toUpperCase(splitMove[2].charAt(0));
-			
-			// white pawn promotion
-			if(getPieceAt(start) == ReturnPiece.PieceType.WP) {
-				if(end.getRank() == 8) {
-					pawnPromotion(promotionChar, getPieceAt(start), end);
-				}
-			}  else {
-				currentGame.message = ReturnPlay.Message.ILLEGAL_MOVE;
-			}
-			
-			//black pawn promotion
-			if(getPieceAt(start) == ReturnPiece.PieceType.BP) {
-				if(end.getRank() == 1) {
-					pawnPromotion(promotionChar, getPieceAt(start), end);
-				}
-			} else {
-				currentGame.message = ReturnPlay.Message.ILLEGAL_MOVE;
-			}
-		}
-
-
 		// Check for special commands
 		if ("resign".equalsIgnoreCase(move)) {
 			currentGame.message = (currPlayer == Player.white) ? ReturnPlay.Message.RESIGN_WHITE_WINS : ReturnPlay.Message.RESIGN_BLACK_WINS;
@@ -372,39 +373,31 @@ public class Chess {
 			currentGame.message = ReturnPlay.Message.DRAW;
 			
 		}
-	
 		
-		
-		if (move.equals("O-O") || move.equals("O-O-O")) {
-	        // kingside Castling
-	        if (move.equals("O-O")) {
-	            if (currPlayer == Player.white) {
-	                start.setFile(ReturnPiece.PieceFile.e);
-	                start.setRank(1);
-	                end.setFile(ReturnPiece.PieceFile.g);
-	                end.setRank(1);
-	               
-	                attemptCastling(move, start, end);
-	            }
+		if (currPlayer == Player.white) {
+	        // White's kingside castling
+	        if (start.equals(new Position(ReturnPiece.PieceFile.e, 1)) && end.equals(new Position(ReturnPiece.PieceFile.g, 1))) {
+	            attemptCastling(start, end);	            }
 	        }
-	        // queenside Castling
-	        else if (move.equals("O-O-O")) {
-	            if (currPlayer == Player.white) {
-	                start.setFile(ReturnPiece.PieceFile.e);
-	                start.setRank(1);
-	                end.setFile(ReturnPiece.PieceFile.c);
-	                end.setRank(1);
-	                
-	                attemptCastling(move, start, end);
-	            } 
+	        // white's queenside castling
+	        else if (start.equals(new Position(ReturnPiece.PieceFile.e, 1)) && end.equals(new Position(ReturnPiece.PieceFile.c, 1))) {
+	            attemptCastling(start, end);
+	        } 
+		if (currPlayer == Player.white) {
+	        // Black's kingside castling
+	        if (start.equals(new Position(ReturnPiece.PieceFile.e, 8)) && end.equals(new Position(ReturnPiece.PieceFile.g, 8))) {
+	            attemptCastling(start, end);
 	        }
-	    }
-
+	        // Black's queenside castling
+	        else if (start.equals(new Position(ReturnPiece.PieceFile.e, 8)) && end.equals(new Position(ReturnPiece.PieceFile.c, 8))) {
+	        	attemptCastling(start, end);
+	        }
+		}
 
 		Position[] startAndEnd = {start, end};
 		return startAndEnd;
 	}
-	
+
 	//pawn promotion
 
 	private static void pawnPromotion(char promotionChar, ReturnPiece.PieceType promoted, Position position) {
@@ -426,6 +419,10 @@ public class Chess {
 	            break;
 	    }
 
+		if (promotionPiece == null){
+			promotionPiece = (currPlayer == Player.white) ? ReturnPiece.PieceType.WQ : ReturnPiece.PieceType.BQ;
+		}
+
 	    // remove the pawn from the board.
 	    ReturnPiece pawnToRemove = new ReturnPiece();
 	    pawnToRemove.pieceType = promoted;
@@ -440,7 +437,6 @@ public class Chess {
 	    newPiece.pieceRank = position.getRank();
 	    currentGame.piecesOnBoard.add(newPiece);
 	}
-
 
 	/*
 	 * USED IN: play()
@@ -505,65 +501,58 @@ public class Chess {
 		return currentGame;
 	}
 	
-	private static boolean attemptCastling(String move, Position kingStart, Position kingEnd) {
-		King currentKing;
-		Rook currentRook;
-		Position rookStart;
-		Position rookEnd;
+	private static void attemptCastling(Position kingStart, Position kingEnd) {
+	    King currentKing = null;
+	    Rook currentRook = null;
+	    Position rookStart;
+	    Position rookEnd;
 
-		//determine rook start and end positions based on move and player
-		if (move.equals("O-O")) {
-			rookStart = (currPlayer == Player.white) ? new Position(ReturnPiece.PieceFile.h, 1) : new Position(ReturnPiece.PieceFile.h, 8);
-			rookEnd = (currPlayer == Player.white) ? new Position(ReturnPiece.PieceFile.f, 1) : new Position(ReturnPiece.PieceFile.f, 8);
-		} else { // "O-O-O"
-			rookStart = (currPlayer == Player.white) ? new Position(ReturnPiece.PieceFile.a, 1) : new Position(ReturnPiece.PieceFile.a, 8);
-			rookEnd = (currPlayer == Player.white) ? new Position(ReturnPiece.PieceFile.d, 1) : new Position(ReturnPiece.PieceFile.d, 8);
-		    }
+	    if (kingEnd.equals(new Position(ReturnPiece.PieceFile.g, kingStart.getRank()))) {
+	        rookStart = (currPlayer == Player.white) ? new Position(ReturnPiece.PieceFile.h, 1) : new Position(ReturnPiece.PieceFile.h, 8);
+	        rookEnd = (currPlayer == Player.white) ? new Position(ReturnPiece.PieceFile.f, 1) : new Position(ReturnPiece.PieceFile.f, 8);
+	    } else { // The king moves to the c-file
+	        rookStart = (currPlayer == Player.white) ? new Position(ReturnPiece.PieceFile.a, 1) : new Position(ReturnPiece.PieceFile.a, 8);
+	        rookEnd = (currPlayer == Player.white) ? new Position(ReturnPiece.PieceFile.d, 1) : new Position(ReturnPiece.PieceFile.d, 8);
+	    }
 
-		//determine piece types based on player
-		ReturnPiece.PieceType kingType = (currPlayer == Player.white) ? ReturnPiece.PieceType.WK : ReturnPiece.PieceType.BK;
-		ReturnPiece.PieceType rookType = (currPlayer == Player.white) ? ReturnPiece.PieceType.WR : ReturnPiece.PieceType.BR;
+	    ReturnPiece.PieceType kingType = (currPlayer == Player.white) ? ReturnPiece.PieceType.WK : ReturnPiece.PieceType.BK;
+	    ReturnPiece.PieceType rookType = (currPlayer == Player.white) ? ReturnPiece.PieceType.WR : ReturnPiece.PieceType.BR;
 
-		//fetch the pieces
-		Piece kingPiece = returnPiece(kingType, kingStart.getFile(), kingStart.getRank());
-		Piece rookPiece = returnPiece(rookType, rookStart.getFile(), rookStart.getRank());
+	    Piece kingPiece = returnPiece(kingType, kingStart.getFile(), kingStart.getRank());
+	    Piece rookPiece = returnPiece(rookType, rookStart.getFile(), rookStart.getRank());
 
-		//verify and cast to their specific types
-		if (kingPiece instanceof King) {
-			currentKing = (King) kingPiece;
-		        
-		} else {
-			return false; 
-		}
+	    if (kingPiece instanceof King) {
+	        currentKing = (King) kingPiece;
+	    } else {
+	    	currentGame.message = ReturnPlay.Message.ILLEGAL_MOVE;
+	    }
 
-		if (rookPiece instanceof Rook) {
-			currentRook = (Rook) rookPiece;
-		} else {
-			return false; 
-		}
+	    if (rookPiece instanceof Rook) {
+	        currentRook = (Rook) rookPiece;
+	    } else {
+	    	currentGame.message = ReturnPlay.Message.ILLEGAL_MOVE;
+	    }
 
-		// check conditions for castling
-		if (currentKing.hasMoved() || currentRook.hasMoved()) {
-			return false;
-		}
+	    if (currentKing.hasMoved() || currentRook.hasMoved()) {
+	    	currentGame.message = ReturnPlay.Message.ILLEGAL_MOVE;
+	    }
 
-		//ensure path is clear for castling
-		ReturnPiece.PieceFile[] allFiles = ReturnPiece.PieceFile.values(); 
-		int startIndex = Math.min(kingStart.getFile().ordinal(), rookStart.getFile().ordinal());
-		int endIndex = Math.max(kingStart.getFile().ordinal(), rookStart.getFile().ordinal());
-		
-		for (int i = startIndex + 1; i < endIndex; i++) {
-			if (getPieceAt(new Position(allFiles[i], kingStart.getRank())) != null) {
-				return false;
-			}
-		}
+	    // ensure path is clear for castling
+	    ReturnPiece.PieceFile[] allFiles = ReturnPiece.PieceFile.values(); 
+	    int startIndex = Math.min(kingStart.getFile().ordinal(), rookStart.getFile().ordinal());
+	    int endIndex = Math.max(kingStart.getFile().ordinal(), rookStart.getFile().ordinal());
+	    
+	    for (int i = startIndex + 1; i < endIndex; i++) {
+	        if (getPieceAt(new Position(allFiles[i], kingStart.getRank())) != null) {
+	        	currentGame.message = ReturnPlay.Message.ILLEGAL_MOVE;
+	        }
+	    }
 
-		//perform the castling move
-		executeMove(currentGame, kingEnd, currentKing.returnPiece);
-		executeMove(currentGame, rookEnd, currentRook.returnPiece);
+	    executeMove(currentGame, kingEnd, currentKing.returnPiece);
+	    executeMove(currentGame, rookEnd, currentRook.returnPiece);
 
-		return true;
 	}
+
 
 
 

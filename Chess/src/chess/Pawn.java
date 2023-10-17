@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 class Pawn extends Piece {
 	
-	 private boolean hasMoved = false; // to track if the pawn has moved before
+	private boolean hasMoved = false; // to track if the pawn has moved before
 
     public Pawn(ReturnPiece.PieceType pieceType, Position position) {
         super(pieceType, position);
@@ -25,7 +25,7 @@ class Pawn extends Piece {
             // moving forward 2 squares
             if (!hasMoved 
                 && position.getFile() == destination.getFile() 
-                && position.getRank() + 2*direction == destination.getRank() 
+                && position.getRank() + 2 * direction == destination.getRank() 
                 && landsOnAPiece(currentGame, new Position(position.getFile(), position.getRank() + direction)) == null 
                 && landsOnAPiece(currentGame, destination) == null) {
                 hasMoved = true;
@@ -42,7 +42,6 @@ class Pawn extends Piece {
             	    take(currentGame, landsOnAPiece(currentGame, destination)); // taking the opponent piece
             	    return true;
             }
-
             return false;
 	}
 
