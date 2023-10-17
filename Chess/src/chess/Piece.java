@@ -3,7 +3,8 @@ package chess;
 import java.util.ArrayList;
 
 abstract class Piece {
-    protected ReturnPiece returnPiece;
+    public static boolean hasMoved;
+	protected ReturnPiece returnPiece;
     protected Position position;  // This represents the current position of the piece.
 
     public Piece(ReturnPiece.PieceType pieceType, Position position) {
@@ -34,6 +35,7 @@ abstract class Piece {
 
 	public void executeMove(Position destination) {
 		this.position = destination;
+		hasMoved = true;
         // check for special move? take? check? !!!!
 	}
 

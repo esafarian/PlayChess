@@ -494,11 +494,26 @@ public class Chess {
 
 	public static ReturnPlay executeMove(ReturnPlay currentGame, Position destination, ReturnPiece currReturnPiece) {
 		
-		int i = currentGame.piecesOnBoard.indexOf(currReturnPiece);
-		currentGame.piecesOnBoard.get(i).pieceFile = destination.getFile();
-		currentGame.piecesOnBoard.get(i).pieceRank = destination.getRank();
+		int i = currentGame.piecesOnBoard.indexOf(currReturnPiece);    
 
-		return currentGame;
+		if(returnPiece(currReturnPiece.pieceType, currReturnPiece.pieceFile, currReturnPiece.pieceRank) instanceof Pawn) {
+	            Pawn currentPawn = (Pawn) returnPiece(currReturnPiece.pieceType, currReturnPiece.pieceFile, currReturnPiece.pieceRank);
+
+	            if(!currentPawn.hasMoved && Math.abs(destination.getRank() - currReturnPiece.pieceRank) == 2) {
+	            	Pawn.setLastPawnMoveDoubleStep(destination); 
+	            } else {
+	                Pawn.setLastPawnMoveDoubleStep(null); 
+	            }
+	            
+	            currentPawn.hasMoved = true;
+	        } else {
+	            Pawn.setLastPawnMoveDoubleStep(null); 
+	        }
+
+	        currentGame.piecesOnBoard.get(i).pieceFile = destination.getFile();
+	        currentGame.piecesOnBoard.get(i).pieceRank = destination.getRank();
+
+	        return currentGame;
 	}
 	
 	private static void attemptCastling(Position kingStart, Position kingEnd) {
