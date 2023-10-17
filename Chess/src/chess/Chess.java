@@ -157,7 +157,12 @@ public class Chess {
 				currentGame.message = ReturnPlay.Message.ILLEGAL_MOVE;
 			}
 		}
-		return currentGame; 
+		if (currPlayer == Player.white) {
+		    currPlayer = Player.black;
+		} else {
+		    currPlayer = Player.white;
+		}
+		return currentGame = executeMove(currentGame, end, currReturnPiece);
 	}
 
 
@@ -279,29 +284,20 @@ public class Chess {
 	 * FUNCTION: checks does the piece the player wants to move belong to them?
 	 * RETURNS: TRUE if the piece is found and belongs to player, FALSE if piece not found or doesn't belong to player
 	 */
-	public static boolean hasValidPiece(Position start){
-		char file1 = start.getFileChar();
-		int rank1 = start.getRank();
+	public static boolean hasValidPiece(Position start) {
+	    char file1 = start.getFileChar();
+	    int rank1 = start.getRank();
 
-		// does the piece on FileRankA belong to the current player?
-		for (int i = 0; i<currentGame.piecesOnBoard.size(); i++){
-			ReturnPiece piece = currentGame.piecesOnBoard.get(i);
+	    for (ReturnPiece piece : currentGame.piecesOnBoard) {
+	        if (piece.pieceFile.name().charAt(0) == file1 && piece.pieceRank == rank1) {
+	            // Check if the piece belongs to the current player based on the piece's type naming convention
+	            return piece.pieceType.name().toLowerCase().charAt(0) == currPlayer.name().charAt(0);
+	        }
+	    }
 
-			// if piece is found check if it belongs to the player
-			if ( piece.pieceFile.name().charAt(0) == file1
-					&& piece.pieceRank == rank1 ){
-
-				// belongs to the player
-				if (piece.pieceType.name().toLowerCase().charAt(0) == currPlayer.name().charAt(0)){
-					return true;
-				}
-
-				// does not belong to the player
-				return false;
-			}
-		}
-		return false;
+	    return false;
 	}
+
 
 	/* USED IN: play()
 	 * FUNCTION: parses String input and returns
@@ -311,6 +307,9 @@ public class Chess {
 		// trim any trailing or leading white spaces
 		move = move.trim();
 
+		if("reset".equalsIgnoreCase(move)){
+			start();
+		}
 		// split the move based on spaces
 		String[] splitMove = move.split(" ");
 

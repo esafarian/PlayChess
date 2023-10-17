@@ -11,17 +11,20 @@ public class Knight extends Piece {
 	// moves in an L-shape. can jump over other pieces.
 	@Override
 	public boolean isValidMove(ReturnPlay currentGame, Position destination) {
-		Position source = position;
+	    // Get the differences between the starting and ending positions
+	    int dx = Math.abs(destination.getFile().ordinal() - position.getFile().ordinal());
+	    int dy = Math.abs(destination.getRank() - position.getRank());
 
-		int fileChange = Math.abs(destination.getFileChar() - source.getFileChar());
-		int rankChange = Math.abs(destination.getRank() - source.getRank());
+	    // Check for the L-shape move
+	    if ((dx == 2 && dy == 1) || (dx == 1 && dy == 2)) {
+	        // Make sure the destination square isn't occupied by a piece of the same color
+	        ReturnPiece pieceAtDestination = landsOnAPiece(currentGame, destination);
+	        if (pieceAtDestination == null || !sameColor(pieceAtDestination)) {
+	            return true;
+	        }
+	    }
 
-		// is the move in an L-shape?
-		if (fileChange == 2 && rankChange == 1 || fileChange == 1 && rankChange == 2){
-			return true;
-		}
-
-		return false;
+	    return false;
 	}
 
 	public ArrayList<Position> getSpotsOnPath(Position source, Position destination){
