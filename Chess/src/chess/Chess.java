@@ -135,9 +135,6 @@ public class Chess {
 		}
 
 
-		// try to carry out move, including special moves
-
-
 		// TESTING!!!!
 		currPiece.executeMove(end);
 		currentGame = executeMove(currentGame, end, currReturnPiece);
@@ -500,15 +497,10 @@ public class Chess {
 	}
 
 	public static ReturnPlay executeMove(ReturnPlay currentGame, Position destination, ReturnPiece currReturnPiece) {
+		
 		int i = currentGame.piecesOnBoard.indexOf(currReturnPiece);
 		currentGame.piecesOnBoard.get(i).pieceFile = destination.getFile();
 		currentGame.piecesOnBoard.get(i).pieceRank = destination.getRank();
-
-		// ** pawn promotion handled in parseMove
-		
-		// check for take
-		// check for special move
-		// check for check
 
 		return currentGame;
 	}
