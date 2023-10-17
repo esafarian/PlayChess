@@ -73,6 +73,41 @@ abstract class Piece {
         return false;
     }
 
+    public boolean checkMateResultsInCheck(ReturnPlay currentGame){
+        ArrayList<ReturnPiece> piecesOnBoard = currentGame.piecesOnBoard;
+
+        // find the king
+        Position kingPosition = new Position(null, 1);
+
+
+        // determine who is the opponent
+        boolean playerIsWhite = (returnPiece.pieceType.name().charAt(0) == 'W');
+
+        // find opponent king
+        for (ReturnPiece piece : piecesOnBoard){
+            if (!playerIsWhite) {
+                if (piece.pieceType == ReturnPiece.PieceType.BK){
+                    kingPosition.setFile(piece.pieceFile);
+                    kingPosition.setRank(piece.pieceRank);
+                }
+            }
+
+            else {
+                if (piece.pieceType == ReturnPiece.PieceType.WK){
+                    kingPosition.setFile(piece.pieceFile);
+                    kingPosition.setRank(piece.pieceRank);
+                }
+            }
+        }
+
+        // run isValidMove() on start: pieceLocation, end: opponent king's position
+        if (isValidMove(currentGame, kingPosition)){
+            return true;
+        }
+
+        return false;
+    }
+
 
     // will the current move put the current player in check?
     public boolean willCheckSelf(ReturnPlay currentGame, Position destination){
@@ -94,6 +129,35 @@ abstract class Piece {
 
                 // check if any move this piece can make will result in check
                 if (piece.resultsInCheck(currentGame)){
+                    unhypothesizeBoard(hypotheticalBoard, destination);
+                    return true;
+                }
+            }
+        }
+
+        unhypothesizeBoard(hypotheticalBoard, destination);
+        return false;
+    }
+
+    public boolean checkMateWillCheckSelf(ReturnPlay currentGame, Position destination){
+        ArrayList<ReturnPiece> piecesOnBoard = currentGame.piecesOnBoard;
+
+        // save piece's OG position, hypothesize board, run checks, then return board to OG state
+        Position pieceOGPosition = new Position(returnPiece.pieceFile, returnPiece.pieceRank);
+        ArrayList<ReturnPiece> hypotheticalBoard = createHypotheticalBoard(piecesOnBoard, destination);
+
+
+        char playerColor = returnPiece.pieceType.name().charAt(0);
+
+        // run "check" check on all the opponent's pieces
+        for (ReturnPiece retPiece : piecesOnBoard){
+            // if opponent's piece
+            if (retPiece.pieceType.name().charAt(0) == playerColor){
+                // create a piece obj of this ReturnPiece
+                Piece piece = Chess.returnPiece(retPiece.pieceType, retPiece.pieceFile, retPiece.pieceRank);
+
+                // check if any move this piece can make will result in check
+                if (piece.checkMateResultsInCheck(currentGame)){
                     unhypothesizeBoard(hypotheticalBoard, destination);
                     return true;
                 }
@@ -147,13 +211,50 @@ abstract class Piece {
             }
         }
 
+        Position ogKingPosition = kingPosition;
+        // can the king move out the way?
         // for all moving options of the king:
+        boolean kingCanMove = false;
+        for (int i = -1; i <= 1; i++){
+            for (int j = -1; j <= 1; j++){
+                kingPosition = ogKingPosition;
+
+                // attempt new file
+                int newFileInt = kingPosition.getFileChar() + i;
+                if ( newFileInt < 'a' || newFileInt > 'h' ){
+                    continue;
+                }
+
+                // attempt new rank
+                int newRank = kingPosition.getRank() + j;
+                if (newRank < 1 || newRank > 8){
+                    continue;
+                }
+
+                Position newKingPos = new Position(null, 1);
 
 
-        // run isValidMove() on start: pieceLocation, end: opponent king's position
-        if (isValidMove(currentGame, kingPosition)){
-            return true;
+                newKingPos.setFile(newKingPos.convertIntToFile(newFileInt));
+                newKingPos.setRank(newRank);
+                // will it land on its own piece?
+                if (checkMateSameColor(landsOnAPiece(currentGame, newKingPos))){
+                    continue;
+                }
+                // search every opponent piece and see if even 1 piece can attack this king
+                if (checkMateWillCheckSelf(currentGame, newKingPos)){
+                    continue;
+                }
+
+                return false;
+            }
         }
+
+        if (!kingCanMove) return true;
+
+
+        // can you put a piece in between king and other piece?
+
+        // can you take the piece that is checking?
 
         return false;
 
@@ -164,6 +265,14 @@ abstract class Piece {
         char thatColor = compareTo.pieceType.name().charAt(0);
 
         if (thisColor == thatColor) return true;
+        return false;
+    }
+
+    public boolean checkMateSameColor(ReturnPiece compareTo){
+        char thisColor = returnPiece.pieceType.name().charAt(0);
+        char thatColor = compareTo.pieceType.name().charAt(0);
+
+        if (thisColor != thatColor) return true;
         return false;
     }
 

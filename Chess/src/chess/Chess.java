@@ -138,7 +138,7 @@ public class Chess {
 		// try to carry out move, including special moves
 		// pawn promotion?
 		String[] splitMove = move.split(" ");
-		boolean hasPawnPromotion = ((splitMove.length > 2) && (Character.toUpperCase(splitMove[2].charAt(0)) != 'D')) ||  (getPieceAt(start) == ReturnPiece.PieceType.WP && start.getRank() == 7) || (getPieceAt(start) == ReturnPiece.PieceType.BP && start.getRank() == 2);
+		boolean hasPawnPromotion = ((splitMove.length > 2) && (Character.toUpperCase(splitMove[2].charAt(0)) != 'd')) ||  (getPieceAt(start) == ReturnPiece.PieceType.WP && start.getRank() == 7) || (getPieceAt(start) == ReturnPiece.PieceType.BP && start.getRank() == 2);
 		if (hasPawnPromotion) {
 
 			char promotionChar = 'Q';
@@ -168,7 +168,15 @@ public class Chess {
 		currPiece.executeMove(end);
 		currentGame = executeMove(currentGame, end, currReturnPiece);
 		if (currPiece.resultsInCheck(currentGame)){
-			System.out.println("King is in check!");
+			currentGame.message = ReturnPlay.Message.CHECK;
+			if (currPiece.resultsInCheckMate(currentGame)){
+				if (currPlayer == Player.white){
+					currentGame.message = ReturnPlay.Message.CHECKMATE_WHITE_WINS;
+					return currentGame;
+				}
+				currentGame.message = ReturnPlay.Message.CHECKMATE_BLACK_WINS;
+				return currentGame;
+			}
 		}
 
 		
@@ -370,33 +378,6 @@ public class Chess {
 		start.setRank(startRank);
 		end.setFile(destFile);
 		end.setRank(destRank);
-
-		// if there is a pawn promotion
-		// method does not return the promotion character so this should be handled here
-		/*String arg3 = "";
-		boolean hasPawnPromotion = (splitMove.length > 2) && (Character.toUpperCase(splitMove[2].charAt(0)) != 'D');
-		if (hasPawnPromotion) {
-
-			char promotionChar = Character.toUpperCase(splitMove[2].charAt(0));
-
-			// white pawn promotion
-			if(getPieceAt(start) == ReturnPiece.PieceType.WP) {
-				if(end.getRank() == 8) {
-					pawnPromotion(promotionChar, getPieceAt(start), end);
-				}
-			}  else {
-				currentGame.message = ReturnPlay.Message.ILLEGAL_MOVE;
-			}
-
-			//black pawn promotion
-			if(getPieceAt(start) == ReturnPiece.PieceType.BP) {
-				if(end.getRank() == 1) {
-					pawnPromotion(promotionChar, getPieceAt(start), end);
-				}
-			} else {
-				currentGame.message = ReturnPlay.Message.ILLEGAL_MOVE;
-			}
-		}*/
 
 
 		// Check for special commands
